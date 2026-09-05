@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+manifest="$repo_root/manifest.json"
+
+jq -e '
+  .schemaVersion == 1
+  and (.id | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._-]*$") and (contains("..") | not) and (startswith("omarchy.") | not))
+  and (.name | type == "string" and length > 0)
+  and (.version | type == "string" and length > 0)
+  and (.kinds | type == "array" and length > 0)
+  and (.entryPoints | type == "object")
+  and (if (.barWidget? | type) == "object" and (.barWidget | has("defaultSection"))
+       then .barWidget.defaultSection == "left" or .barWidget.defaultSection == "center" or .barWidget.defaultSection == "right"
+       else true end)
+' "$manifest" >/dev/null
+
+while IFS= read -r entry_point; do
+  [[ -n $entry_point && $entry_point != /* && $entry_point != *..* && $entry_point != *$'\n'* ]]
+  [[ -f "$repo_root/$entry_point" ]]
+done < <(jq -r '.entryPoints[]' "$manifest")
+
+for mapping in bar:bar bar-widget:barWidget menu:menu overlay:overlay panel:panel service:service; do
+  kind=${mapping%%:*}
+  entry=${mapping##*:}
+  if jq -e --arg kind "$kind" '(.kinds | index($kind)) != null' "$manifest" >/dev/null; then
+    jq -e --arg entry "$entry" '.entryPoints | has($entry)' "$manifest" >/dev/null
+  fi
+done
+
+if find "$repo_root" -name .git -prune -o -type l -print -quit | grep -q .; then
+  echo "Plugin repositories may not contain symlinks." >&2
+  exit 1
+fi
+
+git -C "$repo_root" diff --check
+
+if command -v omarchy >/dev/null 2>&1; then
+  omarchy plugin validate "$repo_root"
+fi
+
+echo "Plugin manifest, entry points, paths, and repository whitespace validate."
