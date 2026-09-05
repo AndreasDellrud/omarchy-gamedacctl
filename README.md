@@ -51,6 +51,15 @@ right-click to launch the full native controller. A missing or failing
 controller is displayed as an error inside the panel and never invokes a shell
 or privilege prompt.
 
+## Remove
+
+```bash
+omarchy plugin remove io.github.andreasdellrud.gamedacctl
+```
+
+Removing the adapter does not uninstall `gamedacctl`, remove its udev rule, or
+delete profiles stored by the native application.
+
 Report GameDAC detection, lighting, or profile-storage problems in the
 [`gamedacctl` issue tracker](https://github.com/AndreasDellrud/gamedacctl/issues).
 Use this repository's issue tracker only for Omarchy panel rendering,
@@ -59,8 +68,12 @@ interaction, or plugin lifecycle problems.
 ## Development validation
 
 ```bash
-omarchy plugin validate .
+scripts/validate
 ```
+
+On Omarchy this runs the upstream manifest validator. If `qmllint` is
+available, it also checks every QML file against the installed Omarchy shell
+imports.
 
 ## License
 

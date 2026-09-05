@@ -4,6 +4,7 @@
   "name": "GameDAC Controls",
   "version": "0.1.0",
   "author": "Andreas Dellrud",
+  "license": "MIT OR Apache-2.0",
   "description": "Device status and saved lighting profiles for gamedacctl",
   "kinds": [
     "bar-widget"
