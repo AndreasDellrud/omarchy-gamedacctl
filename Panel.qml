@@ -23,6 +23,9 @@ Panel {
 
   readonly property bool ready: deviceState === "ready"
   readonly property color dimForeground: Qt.darker(root.bar.foreground, 1.45)
+  readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") !== ""
+    ? Quickshell.env("XDG_CONFIG_HOME")
+    : Quickshell.env("HOME") + "/.config"
 
   function refresh() {
     if (!statusProc.running) statusProc.running = true
@@ -126,6 +129,25 @@ Panel {
     }
   }
 
+  // ProfileStore writes atomically, so reload the FileView after each change
+  // to follow the replacement inode. The short debounce coalesces a burst into
+  // one status query; it is event-driven and does not poll while idle.
+  FileView {
+    path: root.configHome + "/gamedacctl/profiles.json"
+    watchChanges: true
+    printErrors: false
+    onFileChanged: {
+      reload()
+      profileRefreshDebounce.restart()
+    }
+  }
+
+  Timer {
+    id: profileRefreshDebounce
+    interval: 100
+    onTriggered: root.refresh()
+  }
+
   IpcHandler {
     target: root.ipcTarget
     function open(): void { root.open() }
@@ -218,7 +240,9 @@ Panel {
             required property int index
             width: content.width
             text: String(modelData.name)
-            iconText: String(modelData.effect) === "breathe" ? "󰖙" : "󰏘"
+            iconText: String(modelData.icon || "") !== ""
+              ? String(modelData.icon)
+              : (String(modelData.effect) === "breathe" ? "󰖙" : "󰏘")
             foreground: root.bar.foreground
             fontFamily: root.bar.fontFamily
             bordered: true

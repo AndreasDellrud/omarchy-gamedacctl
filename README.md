@@ -3,12 +3,14 @@
 A thin Omarchy 4 shell adapter for
 [`gamedacctl`](https://github.com/AndreasDellrud/gamedacctl). It shows whether
 the original GameDAC controller interface is available and applies profiles
-saved by the native application.
+saved by the native application. Profile-specific emoji or glyph icons are
+shown when configured; older profiles retain effect-specific fallback icons.
 
 The plugin contains no HID, USB protocol, packet construction, privilege, or
 firmware logic. It calls only the stable `gamedacctl status --json` and
-`gamedacctl profile apply NAME --json` interfaces when the panel is opened or a
-profile is selected. Closing the panel leaves no polling process behind.
+`gamedacctl profile apply NAME --json` interfaces. Status refreshes when the
+panel opens, on explicit request, or when the atomically written profile store
+changes. Closing the panel leaves no polling process behind.
 
 ## Requirements
 
