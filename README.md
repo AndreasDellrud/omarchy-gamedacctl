@@ -75,6 +75,11 @@ On Omarchy this runs the upstream manifest validator. If `qmllint` is
 available, it also checks every QML file against the installed Omarchy shell
 imports.
 
+The dated [marketplace validation record](docs/marketplace-validation-20260905.md)
+preserves the exact plugin, validator, and Quattro revisions used for the
+current marketplace-readiness result. It records validation evidence rather
+than marketplace approval; submission remains an explicit owner action.
+
 ## License
 
 The plugin is available under your choice of the [MIT License](LICENSE-MIT) or
