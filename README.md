@@ -25,7 +25,7 @@ panel leaves no polling process behind.
 ## Requirements
 
 - Omarchy 4
-- `gamedacctl` 0.1.3 or newer and `gamedacctl-gui` available on the shell
+- `gamedacctl` 0.1.4 or newer and `gamedacctl-gui` available on the shell
   process `PATH`
 - The scoped GameDAC udev rule supplied by `gamedacctl`
 
@@ -38,7 +38,7 @@ for details.
 
 ## Install
 
-Install the current [`gamedacctl` Arch package](https://github.com/AndreasDellrud/gamedacctl/releases/tag/v0.1.3)
+Install the current [`gamedacctl` Arch package](https://github.com/AndreasDellrud/gamedacctl/releases/tag/v0.1.4)
 first and reconnect the GameDAC once so its scoped udev rule takes effect. Then
 add and enable the plugin:
 
