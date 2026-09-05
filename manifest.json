@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.andreasdellrud.gamedacctl",
+  "name": "GameDAC Controls",
+  "version": "0.1.0",
+  "author": "Andreas Dellrud",
+  "description": "Device status and saved lighting profiles for gamedacctl",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "GameDAC Controls",
+    "description": "Check the original GameDAC and apply saved lighting profiles",
+    "category": "Audio",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
