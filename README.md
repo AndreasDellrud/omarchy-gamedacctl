@@ -4,18 +4,20 @@ A thin Omarchy 4 shell adapter for
 [`gamedacctl`](https://github.com/AndreasDellrud/gamedacctl). It shows whether
 the original GameDAC controller interface is available and applies profiles
 saved by the native application. Profile-specific emoji or glyph icons are
-shown when configured; Steady, ColorShift, Multi Color Breathe, and older
-single-color Breathe profiles retain effect-specific fallback icons.
+shown when configured; profiles without one retain effect-specific fallback
+icons. A master switch turns every headset lighting zone off while preserving
+the selected profile, then restores that profile when switched back on.
 
 This is an unofficial, independent community project. It is not affiliated
 with, endorsed by, or supported by SteelSeries or the Omarchy project. Product
 and project names are used only to describe compatibility.
 
 The plugin contains no HID, USB protocol, packet construction, privilege, or
-firmware logic. It calls only the stable `gamedacctl status --json` and
-`gamedacctl profile apply NAME --json` interfaces. Status refreshes when the
-panel opens, on explicit request, or when the atomically written profile store
-changes. Closing the panel leaves no polling process behind.
+firmware logic. It calls only the stable `gamedacctl status --json`,
+`gamedacctl profile apply NAME --json`, and `gamedacctl profile lighting
+on|off --json` interfaces. Status refreshes when the panel opens, on explicit
+request, or when the atomically written profile store changes. Closing the
+panel leaves no polling process behind.
 
 ## Requirements
 

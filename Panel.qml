@@ -16,6 +16,8 @@ Panel {
   property int selectedIndex: 0
   property bool cursorActive: false
   property bool actionRunning: false
+  property bool lightingEnabled: true
+  property string actionKind: ""
   property string actionMessage: ""
   property string pendingStatusOutput: ""
   property string pendingStatusError: ""
@@ -39,6 +41,7 @@ Panel {
 
       deviceState = String(response.device.state || "error")
       deviceMessage = String(response.device.message || "Controller returned no status")
+      lightingEnabled = response.lighting_enabled !== false
       profiles = response.profiles
       var activeIndex = profiles.findIndex(function(profile) { return profile.selected === true })
       selectedIndex = activeIndex >= 0 ? activeIndex : 0
@@ -57,8 +60,18 @@ Panel {
   function applyProfile(name) {
     if (actionProc.running || String(name || "") === "") return
     actionMessage = "Applying " + name + "…"
+    actionKind = "profile"
     pendingActionError = ""
     actionProc.command = ["gamedacctl", "profile", "apply", String(name), "--json"]
+    actionProc.running = true
+  }
+
+  function setLighting(enabled) {
+    if (actionProc.running) return
+    actionMessage = enabled ? "Restoring selected profile…" : "Turning lighting off…"
+    actionKind = enabled ? "lighting-on" : "lighting-off"
+    pendingActionError = ""
+    actionProc.command = ["gamedacctl", "profile", "lighting", enabled ? "on" : "off", "--json"]
     actionProc.running = true
   }
 
@@ -123,7 +136,9 @@ Panel {
     onExited: function(exitCode) {
       root.actionRunning = false
       root.actionMessage = exitCode === 0
-        ? "Profile applied"
+        ? (root.actionKind === "lighting-off"
+            ? "Lighting turned off"
+            : (root.actionKind === "lighting-on" ? "Selected profile restored" : "Profile applied"))
         : (root.pendingActionError !== "" ? root.pendingActionError : "Could not apply profile")
       root.refresh()
     }
@@ -205,12 +220,62 @@ Panel {
         anchors.top: parent.top
         spacing: Style.space(12)
 
-        Text {
-          text: "Original GameDAC"
-          color: root.bar.foreground
-          font.family: root.bar.fontFamily
-          font.pixelSize: Style.font.title
-          font.bold: true
+        Item {
+          width: parent.width
+          implicitHeight: Math.max(panelTitle.implicitHeight, lightingSwitch.implicitHeight)
+
+          Text {
+            id: panelTitle
+            anchors.left: parent.left
+            anchors.right: lightingSwitch.left
+            anchors.rightMargin: Style.space(12)
+            anchors.verticalCenter: parent.verticalCenter
+            text: "Original GameDAC"
+            color: root.bar.foreground
+            font.family: root.bar.fontFamily
+            font.pixelSize: Style.font.title
+            font.bold: true
+            elide: Text.ElideRight
+          }
+
+          Rectangle {
+            id: lightingSwitch
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            width: Style.space(42)
+            height: Style.space(24)
+            radius: height / 2
+            color: root.lightingEnabled ? Color.accent : Qt.darker(root.bar.background, 1.35)
+            border.width: 1
+            border.color: root.lightingEnabled ? Color.accent : root.dimForeground
+            enabled: root.ready && !root.actionRunning
+            opacity: enabled ? 1.0 : 0.5
+            Accessible.name: "Headset lighting"
+            Accessible.description: root.lightingEnabled ? "Lighting is on" : "Lighting is off"
+            Accessible.role: Accessible.CheckBox
+            Accessible.checked: root.lightingEnabled
+
+            Rectangle {
+              width: Style.space(18)
+              height: width
+              radius: width / 2
+              anchors.verticalCenter: parent.verticalCenter
+              x: root.lightingEnabled
+                ? parent.width - width - Style.space(3)
+                : Style.space(3)
+              color: root.lightingEnabled ? "white" : root.dimForeground
+
+              Behavior on x {
+                NumberAnimation { duration: 120 }
+              }
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              onClicked: root.setLighting(!root.lightingEnabled)
+            }
+          }
         }
 
         Text {
