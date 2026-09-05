@@ -7,10 +7,14 @@ manifest="$repo_root/manifest.json"
 
 jq -e '
   .schemaVersion == 1
-  and (.id | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._-]*$") and (contains("..") | not) and (startswith("omarchy.") | not))
-  and (.name | type == "string" and length > 0)
-  and (.version | type == "string" and length > 0)
-  and (.kinds | type == "array" and length > 0)
+  and (.id | type == "string" and length <= 128 and test("^[a-z0-9][a-z0-9._-]*$") and (contains("..") | not) and (startswith("omarchy.") | not))
+  and (.name | type == "string" and length > 0 and length <= 120)
+  and (.version | type == "string" and length > 0 and length <= 64)
+  and (.author | type == "string" and length > 0 and length <= 120)
+  and (.description | type == "string" and length > 0 and length <= 500)
+  and (.license | type == "string" and length > 0 and length <= 120)
+  and (.kinds | type == "array" and length > 0
+       and all(.[]; . == "bar" or . == "bar-widget" or . == "menu" or . == "overlay" or . == "panel" or . == "service"))
   and (.entryPoints | type == "object")
   and (if (.barWidget? | type) == "object" and (.barWidget | has("defaultSection"))
        then .barWidget.defaultSection == "left" or .barWidget.defaultSection == "center" or .barWidget.defaultSection == "right"
@@ -18,7 +22,7 @@ jq -e '
 ' "$manifest" >/dev/null
 
 while IFS= read -r entry_point; do
-  [[ -n $entry_point && $entry_point != /* && $entry_point != *..* && $entry_point != *$'\n'* ]]
+  [[ -n $entry_point && $entry_point != /* && $entry_point != *..* && $entry_point != *\\* && $entry_point != *:* && $entry_point != *$'\n'* ]]
   [[ -f "$repo_root/$entry_point" ]]
 done < <(jq -r '.entryPoints[]' "$manifest")
 
@@ -35,10 +39,25 @@ if find "$repo_root" -name .git -prune -o -type l -print -quit | grep -q .; then
   exit 1
 fi
 
+find "$repo_root" -maxdepth 1 -type f -iname 'README*' -print -quit | grep -q .
+find "$repo_root" -maxdepth 1 -type f \( -iname 'LICENSE' -o -iname 'LICENSE.*' -o -iname 'LICENCE' -o -iname 'LICENCE.*' -o -iname 'COPYING' -o -iname 'COPYING.*' \) -print -quit | grep -q .
+grep -Fq 'omarchy plugin add' "$repo_root/README.md"
+grep -Fq 'omarchy plugin remove' "$repo_root/README.md"
+
 git -C "$repo_root" diff --check
 
 if command -v omarchy >/dev/null 2>&1; then
   omarchy plugin validate "$repo_root"
 fi
 
-echo "Plugin manifest, entry points, paths, and repository whitespace validate."
+omarchy_root=${OMARCHY_PATH:-/usr/share/omarchy}
+qmllint_bin=$(command -v qmllint || true)
+if [[ -z $qmllint_bin && -x /usr/lib/qt6/bin/qmllint ]]; then
+  qmllint_bin=/usr/lib/qt6/bin/qmllint
+fi
+if [[ -n $qmllint_bin && -d $omarchy_root/shell ]]; then
+  mapfile -d '' qml_files < <(find "$repo_root" -maxdepth 1 -type f -name '*.qml' -print0)
+  "$qmllint_bin" -I "$omarchy_root/shell" "${qml_files[@]}"
+fi
+
+echo "Plugin manifest, documentation, licensing, entry points, paths, and repository whitespace validate."
