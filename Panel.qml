@@ -242,7 +242,10 @@ Panel {
             text: String(modelData.name)
             iconText: String(modelData.icon || "") !== ""
               ? String(modelData.icon)
-              : (String(modelData.effect) === "breathe" ? "󰖙" : "󰏘")
+              : (String(modelData.effect) === "breathe"
+                  || String(modelData.effect) === "multi-color-breathe"
+                ? "󰖙"
+                : "󰏘")
             foreground: root.bar.foreground
             fontFamily: root.bar.fontFamily
             bordered: true
