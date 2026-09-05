@@ -7,6 +7,10 @@ saved by the native application. Profile-specific emoji or glyph icons are
 shown when configured; Steady, ColorShift, Multi Color Breathe, and older
 single-color Breathe profiles retain effect-specific fallback icons.
 
+This is an unofficial, independent community project. It is not affiliated
+with, endorsed by, or supported by SteelSeries or the Omarchy project. Product
+and project names are used only to describe compatibility.
+
 The plugin contains no HID, USB protocol, packet construction, privilege, or
 firmware logic. It calls only the stable `gamedacctl status --json` and
 `gamedacctl profile apply NAME --json` interfaces. Status refreshes when the
@@ -25,7 +29,7 @@ changes. Closing the panel leaves no polling process behind.
 omarchy plugin validate .
 ```
 
-Once this directory is published as its own Git repository, install it with:
+Install the published plugin with:
 
 ```bash
 omarchy plugin add https://github.com/AndreasDellrud/omarchy-gamedacctl.git --enable
@@ -35,3 +39,8 @@ Left-click the headset icon to open the panel, middle-click to refresh, or
 right-click to launch the full native controller. A missing or failing
 controller is displayed as an error inside the panel and never invokes a shell
 or privilege prompt.
+
+## License
+
+The plugin is available under your choice of the [MIT License](LICENSE-MIT) or
+the [Apache License 2.0](LICENSE-APACHE).
