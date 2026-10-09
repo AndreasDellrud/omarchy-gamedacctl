@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import qs.Commons as Commons
 import qs.Ui
 
 Panel {
@@ -245,9 +246,9 @@ Panel {
             width: Style.space(42)
             height: Style.space(24)
             radius: height / 2
-            color: root.lightingEnabled ? Color.accent : Qt.darker(root.bar.background, 1.35)
+            color: root.lightingEnabled ? Commons.Color.accent : Qt.darker(root.bar.background, 1.35)
             border.width: 1
-            border.color: root.lightingEnabled ? Color.accent : root.dimForeground
+            border.color: root.lightingEnabled ? Commons.Color.accent : root.dimForeground
             enabled: root.ready && !root.actionRunning
             opacity: enabled ? 1.0 : 0.5
             Accessible.name: "Headset lighting"
